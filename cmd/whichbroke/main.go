@@ -96,7 +96,7 @@ func main() {
 			last = cIdx
 		}
 	}
-	fmt.Fprintf(os.Stdout, "the last passing commit/revision is: %s\n", commits[pIdx])
+	fmt.Fprintf(os.Stdout, "the non passing commit/revision is: %s\nthe last passing commit/revision is: %s\n", commits[last], commits[pIdx])
 }
 
 // checkout a commit and try to run the tests

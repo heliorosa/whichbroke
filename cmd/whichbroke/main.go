@@ -51,6 +51,10 @@ func main() {
 			break
 		}
 	}
+	if npIdx == len(commits) {
+		fmt.Fprintln(os.Stderr, "can't find a non passing commit/revision")
+		os.Exit(6)
+	}
 	// find any passing commit before the non passing one
 	var (
 		pIdx int
@@ -58,6 +62,13 @@ func main() {
 	)
 	for {
 		pIdx = npIdx + sz
+		if pIdx > len(commits)-1 {
+			pIdx = len(commits) - 1
+		}
+		if pIdx == npIdx {
+			fmt.Fprintf(os.Stderr, "can't find a passing commit/revision before %s\n", commits[npIdx])
+			os.Exit(7)
+		}
 		ok, err := testCommit(repo, commits[pIdx])
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "error checking out the repo: %s\n", err.Error())
@@ -68,6 +79,7 @@ func main() {
 		}
 		sz *= 2
 	}
+	// if pIdx==npIdx
 	last := npIdx + sz/2
 	sz = pIdx - last
 	// bisect until the last passing commit is found

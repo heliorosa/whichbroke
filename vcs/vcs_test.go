@@ -82,7 +82,7 @@ func testRepo(t *testing.T, repo Repo) {
 	}
 }
 
-func testData(t string) string { return "../testdata/" + t + ".tgz" }
+func testData(t string) string { return "./testdata/" + t + ".tgz" }
 
 func TestGitRepo(t *testing.T) {
 	// unpack test

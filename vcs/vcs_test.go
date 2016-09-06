@@ -161,4 +161,17 @@ func TestOpenRepo(t *testing.T) {
 		t.Error("expected a bzr repo")
 		return
 	}
+	newPath := filepath.Join(tmpDirGit, "newdir")
+	if err = os.Mkdir(newPath, 0644); err != nil {
+		t.Error(err)
+		return
+	}
+	if repo, err = OpenRepo(newPath, cmd, args); err != nil {
+		t.Error(err)
+		return
+	}
+	if _, ok := repo.(*GitRepo); !ok {
+		t.Error("expected a git repo")
+		return
+	}
 }

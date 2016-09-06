@@ -126,18 +126,28 @@ type RepoError struct{ Path string }
 
 func (e *RepoError) Error() string { return "no repository found: " + e.Path }
 
+type newFunc func(string, string, []string) Repo
+
+var repoTypes = map[string]newFunc{
+	"git": func(p, bc string, ba []string) Repo { return newGitRepo(p, bc, ba) },
+	"hg":  func(p, bc string, ba []string) Repo { return newHgRepo(p, bc, ba) },
+	"bzr": func(p, bc string, ba []string) Repo { return newBzrRepo(p, bc, ba) },
+}
+
 // OpenRepo checks if a given directory contains a repository
 // and returns a Repo and nil as error if succeeds, otherwise
 // returns an nil and and error of type *RepoError
 func OpenRepo(path, buildCmd string, buildArgs []string) (Repo, error) {
-	if hasSubDir(path, ".git") {
-		return newGitRepo(path, buildCmd, buildArgs), nil
-	}
-	if hasSubDir(path, ".hg") {
-		return newHgRepo(path, buildCmd, buildArgs), nil
-	}
-	if hasSubDir(path, ".bzr") {
-		return newBzrRepo(path, buildCmd, buildArgs), nil
+	var lastPath string
+	cPath := path
+	for cPath != lastPath {
+		for r, orf := range repoTypes {
+			if hasSubDir(cPath, "."+r) {
+				return orf(cPath, buildCmd, buildArgs), nil
+			}
+		}
+		lastPath = cPath
+		cPath, _ = filepath.Abs(filepath.Join(cPath, ".."))
 	}
 	return nil, &RepoError{path}
 }
